@@ -32,21 +32,21 @@ model('basic', '-ndm', 2, '-ndf', 3)
 # Define section properties and elastic beam column elements
 E = 25 * 10**6        # kN / m^2
 NStories = 10         # No. of stories
-HStory1 = 3.6         # 1st floor height (m)
+HStory1 = 4.0         # 1st floor height (m)
 HStoryTyp = 3.6       # Typical storey height (m)
 HBuilding = HStory1 + (NStories - 1) * HStoryTyp  # height of building
 
-NBays = 5             # No. of bays
+NBays = 4            # No. of bays
  
 WBay = 6.0            # unit m     Bay width
 
-dc = 0.7              # unit m     Column depth
+dc = 0.6              # unit m     Column depth
 
 wb = 0.3              # unit m     Beam width
-db = 0.6              # unit m     Beam depth
+db = 0.4              # unit m     Beam depth
 
-Lw = 5.0              # unit m     Wall length
-tw = 0.2              # unit m     Wall thickness
+Lw = 6.0              # unit m     Wall length
+tw = 0.25             # unit m     Wall thickness
 
 seismic_weight = 8    # kPa        Seismic weight of the structure expressing in kPa
 
