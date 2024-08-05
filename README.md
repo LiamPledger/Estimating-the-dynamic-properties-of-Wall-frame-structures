@@ -3,4 +3,6 @@ This repository includes additional data, python scripts, and files used in the 
 
 A MathCAD file is also available for users. The MathCAD file provides a worked example of the procedure outlined in the paper. The values obtained from the approximate method can also be compared against the estimated period and mode-shape from the Wall-frame structural model developed in OpenSees. MathCAD software can be downloaded at the following link : https://www.mathcad.com/en. A PDF version of the MathCAD file is available as well. 
 
+A python script has been developed using the procedure outlined in the paper. The python script takes the input structure dimensions from an excel spreadsheet and estimates the period and mode-shape of the structure. 
+
 
