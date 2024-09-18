@@ -14,16 +14,16 @@ running of the script to help the user visualise the output.
 
 """
 
-from openseespy.opensees import *
+import openseespy.opensees as ops
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
 import opsvis as opsv
 import vfo.vfo as vfo
 
-wipe()
+ops.wipe()
 
-model('basic', '-ndm', 2, '-ndf', 3)
+ops.model('basic', '-ndm', 2, '-ndf', 3)
 
 ###################################################################################################
 ###################################################################################################
@@ -77,7 +77,7 @@ for i in range(NStories + 1):
 
 "Saving plots based on type of analyses used"
 
-geomTransf('Linear', 1)    # Uses the natural deformation scheme, accounting for PDelta and rigid body motion - typically the most accurate
+ops.geomTransf('Linear', 1)    # Uses the natural deformation scheme, accounting for PDelta and rigid body motion - typically the most accurate
 
 # Element linking matrix
 # Main nodes -  format ij = i:xdirec j: ydirec
@@ -116,7 +116,7 @@ cor = main_coords
 
 # Nodes
 for i in range(0, len(cor[0, :])):
-    node(int(ntag[i]), cor[0, i], cor[1, i])
+    ops.node(int(ntag[i]), cor[0, i], cor[1, i])
 
 ###################################################################################################
 "Define boundary conditions"
@@ -125,7 +125,7 @@ for i in range(0, len(cor[0, :])):
 "fix the columns at ground floor - assuming pinned connections for the system (including the leaning column)"
 
 for i in range(NBays + 1):
-    fix(main_nodes[i], 1, 1, 1) # fixed
+    ops.fix(main_nodes[i], 1, 1, 1) # fixed
 
 main_nodes_vert = main_nodes[::]
 main_nodes_vert.sort()
@@ -146,7 +146,7 @@ for i in range(len(main_nodes_vert)):
 
 for i in range(0, len(main_nodes)):
     "mass command is used to set the mass at each node"
-    mass(int(main_nodes_vert[i]), mass_nodes[i], mass_nodes[i], 0)
+    ops.mass(int(main_nodes_vert[i]), mass_nodes[i], mass_nodes[i], 0)
 
 ###################################################################################################
 " Define beam, column, and wall elements between nodes"
@@ -163,9 +163,9 @@ for i in range(len(col_eleTag)):
 n_col_ele = (NBays+1)*NStories
 for i in range(0, n_col_ele):
     if (i) % (NBays + 1) == 0:
-        element('elasticBeamColumn', int(col_eleTag[i]), int(main_nodes[i]), int(main_nodes[i + NBays+1]), float(Aw), E, float(Iw), int(1))
+        ops.element('elasticBeamColumn', int(col_eleTag[i]), int(main_nodes[i]), int(main_nodes[i + NBays+1]), float(Aw), E, float(Iw), int(1))
     else:
-        element('elasticBeamColumn', int(col_eleTag[i]), int(main_nodes[i]), int(main_nodes[i + NBays+1]), float(Ac), E, float(Ic), int(1))
+        ops.element('elasticBeamColumn', int(col_eleTag[i]), int(main_nodes[i]), int(main_nodes[i + NBays+1]), float(Ac), E, float(Ic), int(1))
      
 opsv.plot_model(node_labels=0, axis_off=1)
 plt.title('Plot of Elements')
@@ -184,7 +184,7 @@ mn.sort()
 "Defining the beam elements for the structure"
 n_beam_ele = NBays * NStories
 for i in range(0, n_beam_ele):
-    element('elasticBeamColumn', int(beam_eleTag[i]), int(mn[i]), int(mn[i + NStories]), float(Ab), E, float(Ib), int(1))
+    ops.element('elasticBeamColumn', int(beam_eleTag[i]), int(mn[i]), int(mn[i + NStories]), float(Ab), E, float(Ib), int(1))
        
 ###################################################################################################
 "Plotting the model"
@@ -198,8 +198,8 @@ plt.title('Plot of Elements')
 ###################################################################################################
 # Gravity load
 vfo.createODB("Nonlin_RCWall", "Gravity", Nmodes=3)
-timeSeries('Linear', 1)  # applies the load in a linear manner (not all at once)
-pattern("Plain", 1, 1) # create a plain load pattern - similar to ELF
+ops.timeSeries('Linear', 1)  # applies the load in a linear manner (not all at once)
+ops.pattern("Plain", 1, 1) # create a plain load pattern - similar to ELF
 
 def create_cntrlnodes(n):
     return [i for i in range(101, 101 + n)]
@@ -208,38 +208,38 @@ cntrlnodes = create_cntrlnodes(NStories + 1)
 "Create the nodal load - command: load nodeID xForce yForce"
 for i in range(0, len(main_nodes)):
     "mass command is used to set the mass at each node"
-    load(int(main_nodes_vert[i]), 0, -mass_nodes[i] * 9.81, 0)
+    ops.load(int(main_nodes_vert[i]), 0, -mass_nodes[i] * 9.81, 0)
     
 # create DOF number
-numberer("RCM")
+ops.numberer("RCM")
 # create SOE
-system('BandGeneral')
+ops.system('BandGeneral')
 # create constraint handler
-constraints("Transformation")
+ops.constraints("Transformation")
 # create number of steps
 nsteps=1
 # create integrator
-integrator('LoadControl', 1/nsteps)
+ops.integrator('LoadControl', 1/nsteps)
 # create algorithm
-test('RelativeEnergyIncr', 1e-1, 200, 0) # convergence scheme applied to the model
-algorithm("Newton")                      # solution scheme - Newton-Raphson method of solving non-linear equations
+ops.test('RelativeEnergyIncr', 1e-1, 200, 0) # convergence scheme applied to the model
+ops.algorithm("Newton")                      # solution scheme - Newton-Raphson method of solving non-linear equations
 # create analysis object
-analysis("Static")                       # analysis type - ie, static, transient etc..
+ops.analysis("Static")                       # analysis type - ie, static, transient etc..
 # perform the analysis
-recorder('Node', '-file', "results/modal/eigen.out",'-closeOnWrite','-dof',1,2,3,'eigen')
+ops.recorder('Node', '-file', "results/modal/eigen.out",'-closeOnWrite','-dof',1,2,3,'eigen')
 
-analyze(nsteps)
+ops.analyze(nsteps)
 
 vfo.createODB("Nonlin_RCWall", "Gravity", Nmodes=3)
 
 # printModel()
 # opsv.plot_model(fig_wi_he=(20., 14.))
-eigen('-genBandArpack', 1)
-record
-loadConst('-time', 0.0)
-wipeAnalysis()
+ops.eigen('-genBandArpack', 1)
+ops.record
+ops.loadConst('-time', 0.0)
+ops.wipeAnalysis()
 
-a=eigen(10)
+a=ops.eigen(10)
 w1=sqrt(a[0])                       # angular frequency of first mode
 w2=sqrt(a[1])                       # angular frequency of second mode
 w3=sqrt(a[2])
@@ -247,11 +247,11 @@ w3=sqrt(a[2])
 zeta=0.02                                  #Assumed damping ratio (currently 2%)
 a0    =zeta*2.0*w1*w3/(w1 + w3);  	        # mass damping coefficient based on first and third modes
 a1    =zeta*2.0/(w1 + w3);		        # stiffness damping coefficient based on first and third modes
-rayleigh(a0, 0, 0, a1)
+ops.rayleigh(a0, 0, 0, a1)
 
 ms_1 = np.zeros([len(cntrlnodes)])
 for i in range(0, len(cntrlnodes)):
-    ms_1[i] = nodeEigenvector(cntrlnodes[i], 1, 1)   # obtains the mode shape of the first mode
+    ms_1[i] = ops.nodeEigenvector(cntrlnodes[i], 1, 1)   # obtains the mode shape of the first mode
 ms_1 = ms_1/(ms_1[-1])                               # normalised the mode shape (value at the roof equal to 1)
 ms_1 = np.round(ms_1, 4)
 
