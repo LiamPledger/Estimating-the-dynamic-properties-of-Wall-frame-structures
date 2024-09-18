@@ -1,33 +1,22 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  5 16:36:36 2024
-
-@author: ljp70
-"""
 
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jul 31 09:22:26 2023
 
-@author: ljp70
+@author: 
+    Liam Pledger
+    liam.pledger@canterbury.ac.nz
+    
+This script estimates the fundamental period of a wall-frame structure using an approximate procedure
+proposed by Pledger et al. (2024). It extracts the structure's geometric properties from an Excel file
+and calculates the storey stiffness for both the wall and frame. By applying Rayleigh's principle, the
+script computes the mode shape and fundamental period of the structure based on the given structural 
+parameters.
+
 """
 
-from openseespy.opensees import *
-# import openseespy.postprocessing.Get_Rendering as opsplt
 import numpy as np
-import math
-import matplotlib.pyplot as plt
-from math import asin, sqrt, pi
-import opsvis as opsv
-import vfo.vfo as vfo
 import pandas as pd
-
-wipe()
-
-model('basic', '-ndm', 2, '-ndf', 3)
-###################################################################################################
-"Define nodes and cordinates"
-###################################################################################################
 
 # Load data from Excel file
 file_path = r"Saved Location\Wall-frame dataset from GitHUB.xlsx"
@@ -36,11 +25,9 @@ df = pd.read_excel(file_path)
 # Define section properties and elastic beam column elements
 E = 25 * 10**6  # kN / m^2
 
-
 build_ID = 1
 for z in range(build_ID, build_ID + 1):   
-    wipe()
-    
+
     # Extract parameters from the DataFrame for each row
 
     NStories = int(df.iloc[z, 0])  
@@ -139,7 +126,6 @@ for z in range(build_ID, build_ID + 1):
     omega = np.sqrt(PE / KE)
     est_T1 = 2 * np.pi / omega
     print("Period estimate = " + str(np.round(est_T1, 2)))   
-    
 
     
 
